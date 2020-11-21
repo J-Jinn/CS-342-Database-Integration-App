@@ -299,14 +299,40 @@ namespace database_integration_app
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
+        /// <summary>
+        /// Function controls what happens when the WinForms app Forms is initially initialized.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PubsDatabaseForm_Load(object sender, EventArgs e)
         {
             // Do something to Form upon initialization.
+            string message = $"Instructions (close MessageBox to load app GUI):\n" +
+                $"\nClick the Author Title Info Button to obtain a list of authors. " +
+                $"\nSelect a author from the list of authors. " +
+                $"\nThe TextBox in the upper-right will display all titles by that author. " +
+                $"\nEnter a new address in the input TextBox. " +
+                $"\nClick on the Update Author Title Info to update the author's info. " +
+                $"\nThe currently selected author in the ListView of authors will be the one whose info is changed. " +
+                $"\nCurrently, you will need to look in SQL Server 2018 Pubs Database to view changes." +
+                $"\n\nTODO: Update aesthetics/functionality of app to be more intuitive.";
+            MessageBox.Show(message);
+  
         }
 
         private void NewAddressTextBox_TextChanged(object sender, EventArgs e)
         {
+            // Text Box.
+        }
 
+        private void TitlesWrittenBySelectedAuthorLabel_Click(object sender, EventArgs e)
+        {
+            // Label.
+        }
+
+        private void ListOfAuthorsLabel_Click(object sender, EventArgs e)
+        {
+            // Label.
         }
     }
 }
