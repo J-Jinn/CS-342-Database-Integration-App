@@ -49,10 +49,14 @@ namespace database_integration_app
             // 
             // AuthorTitleInfoListBox
             // 
+            this.AuthorTitleInfoListBox.ColumnWidth = 80;
             this.AuthorTitleInfoListBox.FormattingEnabled = true;
+            this.AuthorTitleInfoListBox.HorizontalExtent = 480;
+            this.AuthorTitleInfoListBox.HorizontalScrollbar = true;
             this.AuthorTitleInfoListBox.Location = new System.Drawing.Point(24, 458);
             this.AuthorTitleInfoListBox.Name = "AuthorTitleInfoListBox";
-            this.AuthorTitleInfoListBox.Size = new System.Drawing.Size(246, 290);
+            this.AuthorTitleInfoListBox.ScrollAlwaysVisible = true;
+            this.AuthorTitleInfoListBox.Size = new System.Drawing.Size(506, 290);
             this.AuthorTitleInfoListBox.TabIndex = 2;
             this.AuthorTitleInfoListBox.SelectedIndexChanged += new System.EventHandler(this.AuthorTitleInfoListBox_SelectedIndexChanged);
             // 

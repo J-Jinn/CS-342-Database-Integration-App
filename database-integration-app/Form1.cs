@@ -18,8 +18,32 @@ namespace database_integration_app
             InitializeComponent();
         }
 
+        public class Author
+        {
+            /*
+             * This class defines an Author object from the pubs Authors table. 
+             */
+            public Author(string au_id, string au_fname, string au_lname)
+            {
+                AuthorID = au_id;
+                AuthorFirstName = au_fname;
+                AuthorLastName = au_lname;
+            }
+
+            public string AuthorID { get; set; }
+            public string AuthorFirstName { get; set; }
+            public string AuthorLastName { get; set; }
+        }
+        // List of Author objects.
+        List<Author> AuthorsList = new List<Author>();
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void GetAuthorTitleInfoButton_Click(object sender, EventArgs e)
         {
+            /*
+             * This function defines the button click that populates the ListBox with Author information.
+             * */
             String connString = "Data Source=localhost;" +
                  "Initial Catalog=pubs;Integrated Security=true ";
 
@@ -37,17 +61,20 @@ namespace database_integration_app
 
             foreach (DataRow row in authors.Tables["authors"].Rows)
             {
-                //string info = $"Author: {row["au_fname"]} {row["au_lname"]} Address: {row["address"]} City: {row["city"]} " +
+                //string info = $"ID: {row["au_id"]} Author: {row["au_fname"]} {row["au_lname"]} Address: {row["address"]} City: {row["city"]} " +
                 //    $"State: {row["state"]} Zip Code: {row["zip"]} Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}"; 
 
-                string author = $"Author: {row["au_fname"]} {row["au_lname"]}";
+                //string author = $"Author: {row["au_fname"]} {row["au_lname"]}";
+                //AuthorTitleInfoListBox.Items.Add(author);
 
-                AuthorTitleInfoListBox.Items.Add(author);
+                Author MyAuthor = new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}");
+                AuthorTitleInfoListBox.Items.Add($"Author: ID:{MyAuthor.AuthorID}, First Name:{MyAuthor.AuthorFirstName}, Last Name: {MyAuthor.AuthorLastName}");
+                AuthorsList.Add(new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}"));
             }
-
             conn.Close();
-            Console.WriteLine("\n\nDone...");
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void UpdateAuthorTitleInfoButton_Click(object sender, EventArgs e)
         {
@@ -90,6 +117,8 @@ namespace database_integration_app
             //adapter.UpdateCommand = updateCmd;
             //adapter.Update(table);
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public static void runProc(SqlConnection DbConn, string tId, int iQty)
         {
@@ -141,24 +170,37 @@ namespace database_integration_app
 
         }
 
-        private void AuthorTitleInfoListView_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
         private void AuthorTitleInfoListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Clear text each time we select a new author.
+            AuthorTitleInfoTextBox.Clear();
+
+            // Get selected item text.
+            string SelectedItem = AuthorTitleInfoListBox.SelectedItem.ToString();
+            // Parse text for ID.
+            string[] SelectedItemComponents = SelectedItem.Split(' ');
+            // Blah blah blah....skipping parse ID method as it's easier to just use our Author class.
+
+            // Get selected item index.
+            int SelectedItemIndex = AuthorTitleInfoListBox.SelectedIndex;
+            // Get selected author based on item index.
+            Author SelectedAuthor = AuthorsList[SelectedItemIndex];
+
+            //////////////////////////////////////////////////////////////////////////////////
+            
             String connString = "Data Source=localhost;" +
             "Initial Catalog=pubs;Integrated Security=true ";
 
             SqlConnection conn = new SqlConnection(connString);
-            conn.Open();
+            conn.Open();                     
 
-            // Get selected text.
-            // Parse text for first name and last name.
-            // Send query for book title and other information based on first name and last name.
-
-            string queryString = "SELECT * FROM [vAuthorTitles];";
+            // TODO: Refactor to use a View instead.
+            string queryString = $"SELECT * FROM authors " +
+                $"INNER JOIN titleauthor ON authors.au_id = titleauthor.au_id " +
+                $"INNER JOIN titles ON titleauthor.title_id = titles.title_id " +
+                $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
@@ -173,13 +215,12 @@ namespace database_integration_app
                 //    $"State: {row["state"]} Zip Code: {row["zip"]} Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}"; 
 
                 string title = $"Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}";
-
                 AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
             }
-
             conn.Close();
-            Console.WriteLine("\n\nDone...");
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void AddressLabel_Click(object sender, EventArgs e)
         {
