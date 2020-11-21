@@ -34,18 +34,28 @@ CREATE PROC [proc_ainfo]
 	@AuthorLastName VARCHAR(40),
 	@AuthorNewAddress VARCHAR(40)
 AS
-IF EXISTS (SELECT * 
+BEGIN
+	DECLARE @RETURNVALUE INT;
+	SET @RETURNVALUE = -1;
+
+	IF EXISTS (SELECT * 
 				FROM authors 
 				WHERE authors.au_fname = @AuthorFirstName 
 					AND authors.au_lname = @AuthorLastName)
-	BEGIN
-	UPDATE dbo.authors
-		SET address = @AuthorNewAddress
-		WHERE authors.au_fname = @AuthorFirstName 
-			AND authors.au_lname = @AuthorLastName;
-	END
-ELSE
-	THROW 50001, 'Not a valid author!', 1;
+		BEGIN
+			UPDATE dbo.authors
+				SET address = @AuthorNewAddress
+				WHERE authors.au_fname = @AuthorFirstName 
+					AND authors.au_lname = @AuthorLastName;
+			SET @RETURNVALUE = 0;
+		END
+	ELSE
+		BEGIN
+			;THROW 50001, 'Not a valid author!', 1;
+			SET @RETURNVALUE = -1;
+		END
+	RETURN @RETURNVALUE;
+END
 GO
 
 ---------------------------------------------------------------------------------------
@@ -59,12 +69,14 @@ BEGIN TRY
 	DECLARE @AuLast VARCHAR(40);
 	SET @AuLast = 'Jinn';
 	DECLARE @AuAddress VARCHAR(40);
-	SET @AuAddress = 'New Address';
+	SET @AuAddress = 'New Address 2';
+	DECLARE @RETURNVALUE INT;
 
-	EXEC [proc_ainfo] 
+	EXEC @RETURNVALUE = [proc_ainfo] 
 		@AuthorFirstName = @AuFirst, 
 		@AuthorLastName = @AuLast, 
 		@AuthorNewAddress = @AuAddress;
+		PRINT 'Return Value: ' + CONVERT(VARCHAR, @RETURNVALUE);
 END TRY
 BEGIN CATCH
 	PRINT 'An error occurred.';
