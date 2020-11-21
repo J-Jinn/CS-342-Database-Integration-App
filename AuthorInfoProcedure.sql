@@ -30,6 +30,7 @@ GO
 ---------------------------------------------------------------------------------------
 
 CREATE PROC [proc_ainfo]
+	@AuthorID VARCHAR(11),
 	@AuthorFirstName VARCHAR(20),
 	@AuthorLastName VARCHAR(40),
 	@AuthorNewAddress VARCHAR(40)
@@ -40,13 +41,11 @@ BEGIN
 
 	IF EXISTS (SELECT * 
 				FROM authors 
-				WHERE authors.au_fname = @AuthorFirstName 
-					AND authors.au_lname = @AuthorLastName)
+				WHERE authors.au_id = @AuthorID)
 		BEGIN
 			UPDATE dbo.authors
 				SET address = @AuthorNewAddress
-				WHERE authors.au_fname = @AuthorFirstName 
-					AND authors.au_lname = @AuthorLastName;
+				WHERE authors.au_id = @AuthorID;
 			SET @RETURNVALUE = 0;
 		END
 	ELSE
@@ -69,10 +68,13 @@ BEGIN TRY
 	DECLARE @AuLast VARCHAR(40);
 	SET @AuLast = 'Jinn';
 	DECLARE @AuAddress VARCHAR(40);
-	SET @AuAddress = 'New Address 2';
+	SET @AuAddress = 'New Address 1';
+	DECLARE @AuID VARCHAR(11);
+	SET @AuID = '616-29-8402';
 	DECLARE @RETURNVALUE INT;
 
-	EXEC @RETURNVALUE = [proc_ainfo] 
+	EXEC @RETURNVALUE = [proc_ainfo]
+		@AuthorID = @AuID,
 		@AuthorFirstName = @AuFirst, 
 		@AuthorLastName = @AuLast, 
 		@AuthorNewAddress = @AuAddress;

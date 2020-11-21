@@ -1,7 +1,7 @@
 ﻿
 namespace database_integration_app
 {
-    partial class Form1
+    partial class PubsDatabaseWinForm
     {
         /// <summary>
         /// Required designer variable.
@@ -32,7 +32,7 @@ namespace database_integration_app
             this.GetAuthorTitleInfoButton = new System.Windows.Forms.Button();
             this.AuthorTitleInfoListBox = new System.Windows.Forms.ListBox();
             this.UpdateAuthorTitleInfoButton = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.NewAddressTextBox = new System.Windows.Forms.TextBox();
             this.AddressLabel = new System.Windows.Forms.Label();
             this.AuthorTitleInfoTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
@@ -62,7 +62,7 @@ namespace database_integration_app
             // 
             // UpdateAuthorTitleInfoButton
             // 
-            this.UpdateAuthorTitleInfoButton.Location = new System.Drawing.Point(961, 381);
+            this.UpdateAuthorTitleInfoButton.Location = new System.Drawing.Point(1014, 381);
             this.UpdateAuthorTitleInfoButton.Name = "UpdateAuthorTitleInfoButton";
             this.UpdateAuthorTitleInfoButton.Size = new System.Drawing.Size(150, 45);
             this.UpdateAuthorTitleInfoButton.TabIndex = 3;
@@ -70,12 +70,13 @@ namespace database_integration_app
             this.UpdateAuthorTitleInfoButton.UseVisualStyleBackColor = true;
             this.UpdateAuthorTitleInfoButton.Click += new System.EventHandler(this.UpdateAuthorTitleInfoButton_Click);
             // 
-            // textBox1
+            // NewAddressTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(612, 64);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(186, 20);
-            this.textBox1.TabIndex = 4;
+            this.NewAddressTextBox.Location = new System.Drawing.Point(612, 64);
+            this.NewAddressTextBox.Name = "NewAddressTextBox";
+            this.NewAddressTextBox.Size = new System.Drawing.Size(552, 20);
+            this.NewAddressTextBox.TabIndex = 4;
+            this.NewAddressTextBox.TextChanged += new System.EventHandler(this.NewAddressTextBox_TextChanged);
             // 
             // AddressLabel
             // 
@@ -98,19 +99,20 @@ namespace database_integration_app
             this.AuthorTitleInfoTextBox.TabIndex = 6;
             this.AuthorTitleInfoTextBox.TextChanged += new System.EventHandler(this.AuthorTitleInfoTextBox_TextChanged);
             // 
-            // Form1
+            // PubsDatabaseWinForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1222, 760);
             this.Controls.Add(this.AuthorTitleInfoTextBox);
             this.Controls.Add(this.AddressLabel);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.NewAddressTextBox);
             this.Controls.Add(this.UpdateAuthorTitleInfoButton);
             this.Controls.Add(this.AuthorTitleInfoListBox);
             this.Controls.Add(this.GetAuthorTitleInfoButton);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "PubsDatabaseWinForm";
+            this.Text = "Pubs Database - Author Titles Info App (Important: BACKUP DATABASE FIRST)";
+            this.Load += new System.EventHandler(this.PubsDatabaseForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -120,7 +122,7 @@ namespace database_integration_app
         private System.Windows.Forms.Button GetAuthorTitleInfoButton;
         private System.Windows.Forms.ListBox AuthorTitleInfoListBox;
         private System.Windows.Forms.Button UpdateAuthorTitleInfoButton;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox NewAddressTextBox;
         private System.Windows.Forms.Label AddressLabel;
         private System.Windows.Forms.TextBox AuthorTitleInfoTextBox;
     }

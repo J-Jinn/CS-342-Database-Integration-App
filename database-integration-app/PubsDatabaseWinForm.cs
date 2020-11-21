@@ -9,20 +9,31 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+/// <summary>
+/// Pubs Database WinForm Application Integration.
+/// 
+/// Note: BACKUP the Pubs Database before making changes to it.
+/// </summary>
 namespace database_integration_app
 {
-    public partial class Form1 : Form
+    public partial class PubsDatabaseWinForm : Form
     {
-        public Form1()
+        public PubsDatabaseWinForm()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// This class defines an Author object from the Pubs Database Authors table.
+        /// </summary>
         public class Author
         {
-            /*
-             * This class defines an Author object from the pubs Authors table. 
-             */
+            /// <summary>
+            /// Constructor for the Author class.
+            /// </summary>
+            /// <param name="au_id"></param>
+            /// <param name="au_fname"></param>
+            /// <param name="au_lname"></param>
             public Author(string au_id, string au_fname, string au_lname)
             {
                 AuthorID = au_id;
@@ -30,6 +41,9 @@ namespace database_integration_app
                 AuthorLastName = au_lname;
             }
 
+            /// <summary>
+            /// Accessors/Mutator methods.
+            /// </summary>
             public string AuthorID { get; set; }
             public string AuthorFirstName { get; set; }
             public string AuthorLastName { get; set; }
@@ -39,6 +53,11 @@ namespace database_integration_app
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Function defines the action taken upon clicking the button to load the list of authors in the Pubs Database Authors table.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GetAuthorTitleInfoButton_Click(object sender, EventArgs e)
         {
             /*
@@ -76,37 +95,46 @@ namespace database_integration_app
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Function defines the action taken upon clicking the button to updated a author's personal address information.
+        /// 
+        ///  Important Note: Currently, The specific author is defined by the selected author in the AuthorTitleInfo ListBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UpdateAuthorTitleInfoButton_Click(object sender, EventArgs e)
         {
-            //String connString =
-            //"Data Source=localhost;" +
-            //"Initial Catalog=pubs;Integrated Security=true ";
+            bool debug = true;
 
-            //String cmdString = "select au_lname, au_fname from authors";
+            try
+            {
+                // Get selected item index.
+                int SelectedItemIndex = AuthorTitleInfoListBox.SelectedIndex;
+                // Get selected author based on item index.
+                Author SelectedAuthor = AuthorsList[SelectedItemIndex];
 
-            //SqlConnection conn = new SqlConnection(connString);
+                string authorID = $"{SelectedAuthor.AuthorID}";
+                string authorFirstName = $"";
+                string authorLastName = $"";
+                string newAddress = NewAddressTextBox.Text.ToString();
+                if (debug)
+                {
+                    Console.WriteLine($"Author ID: {authorID}");
+                    Console.WriteLine($"Author's New Address: {newAddress}");
+                }
+                SqlConnection conn = new SqlConnection("Data Source=localhost;" +
+                                 "Initial Catalog=pubs;Integrated Security=true ");
 
-            //conn.Open();
 
-            //SqlCommand cmd = new SqlCommand(cmdString, conn);
-            //SqlDataReader r = cmd.ExecuteReader();
-            //while (r.Read())
-            //{
-            //    Console.WriteLine("Name: " +
-            //                 r["au_fname"] + " " + r["au_lname"]);
-            //}
-            //conn.Close();
+                // Call the stored procedure.
+                RunAuthorTitlesInfoPStoredProcedure(conn, authorID, authorFirstName, authorLastName, newAddress);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("Error: " + error.Message);
+            }
 
-            //string inTitleId;
-            //int iQty;
-            //Console.Write("Enter Title ID:");
-            //inTitleId = Console.ReadLine();
-            //Console.Write("Enter Qty:");
-            //iQty = int.Parse(Console.ReadLine());
-            //SqlConnection conn = new SqlConnection("Data Source=localhost;" +
-            //                 "Initial Catalog=pubs;Integrated Security=true ");
-            //runProc(conn, inTitleId, iQty);
-
+            // Deprecated - we don't want to directly update the database with SQL query statements.
             //Console.WriteLine("\n\nUpdating database...");
             ////setup update
             //string stringUpdate = "Update [authors] set state = @state where au_id = @au_id";
@@ -120,58 +148,85 @@ namespace database_integration_app
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public static void runProc(SqlConnection DbConn, string tId, int iQty)
+        /// <summary>
+        /// Function defines a stored procedure for updating a author's personal address information.
+        /// </summary>
+        /// <param name="DbConn"></param>
+        /// <param name="tId"></param>
+        /// <param name="iQty"></param>
+        public void RunAuthorTitlesInfoPStoredProcedure(SqlConnection DbConn, string id, string first_name, string last_name ,string new_address)
         {
-            SqlCommand rSproc = new SqlCommand("prAddToOrder", DbConn);
+            SqlCommand rSproc = new SqlCommand("[proc_ainfo]", DbConn);
             rSproc.CommandType = CommandType.StoredProcedure;
-            //now create a parameter object for the return value - note it will be an integer
+
+            // Return value.
             SqlParameter spReturn = new SqlParameter();
-            spReturn.ParameterName = "@return_value";
+            spReturn.ParameterName = "@RETURNVALUE";
             spReturn.SqlDbType = System.Data.SqlDbType.Int;
             spReturn.Direction = ParameterDirection.ReturnValue;
             rSproc.Parameters.Add(spReturn);
 
-            //now add the input parameters
-            SqlParameter rTParam = new SqlParameter();
-            rTParam.ParameterName = "@inTitleId";
-            rTParam.SqlDbType = SqlDbType.Char;
-            rTParam.Size = 12;
-            rTParam.Direction = ParameterDirection.Input;
-            rTParam.Value = tId;
-            rSproc.Parameters.Add(rTParam);
+            // Input parameter - specify which author.
+            SqlParameter authorIDParam = new SqlParameter();
+            authorIDParam.ParameterName = "@AuthorID";
+            authorIDParam.SqlDbType = SqlDbType.VarChar;
+            authorIDParam.Size = 12;
+            authorIDParam.Direction = ParameterDirection.Input;
+            authorIDParam.Value = id;
+            rSproc.Parameters.Add(authorIDParam);
 
-            SqlParameter rQParam = new SqlParameter();
-            rQParam.ParameterName = "@inIncrease";
-            rQParam.SqlDbType = SqlDbType.Int;
-            rQParam.Direction = ParameterDirection.Input;
-            rQParam.Value = iQty;
-            rSproc.Parameters.Add(rQParam);
+            // Deprecated.
+            SqlParameter authorFirstNameParam = new SqlParameter();
+            authorFirstNameParam.ParameterName = "@AuthorFirstName";
+            authorFirstNameParam.SqlDbType = SqlDbType.VarChar;
+            authorFirstNameParam.Direction = ParameterDirection.Input;
+            authorFirstNameParam.Value = first_name;
+            rSproc.Parameters.Add(authorFirstNameParam);
 
-            //Now create the output
-            SqlParameter rOParam = new SqlParameter();
-            rOParam.ParameterName = "@outTotalAdd";
-            rOParam.SqlDbType = SqlDbType.Int;
-            rOParam.Direction = ParameterDirection.Output;
-            rSproc.Parameters.Add(rOParam);
+            // Deprecated.
+            SqlParameter authorLastNameParam = new SqlParameter();
+            authorLastNameParam.ParameterName = "@AuthorLastName";
+            authorLastNameParam.SqlDbType = SqlDbType.VarChar;
+            authorLastNameParam.Direction = ParameterDirection.Input;
+            authorLastNameParam.Value = last_name;
+            rSproc.Parameters.Add(authorLastNameParam);
+
+            // Input parameter - change author's address to...
+            SqlParameter authorNewAddressParam = new SqlParameter();
+            authorNewAddressParam.ParameterName = "@AuthorNewAddress";
+            authorNewAddressParam.SqlDbType = SqlDbType.VarChar;
+            authorNewAddressParam.Direction = ParameterDirection.Input;
+            authorNewAddressParam.Value = new_address;
+            rSproc.Parameters.Add(authorNewAddressParam);
+
+            // Output parameters (we don't need one).
+            //SqlParameter rOParam = new SqlParameter();
+            //rOParam.ParameterName = "@outTotalAdd";
+            //rOParam.SqlDbType = SqlDbType.Int;
+            //rOParam.Direction = ParameterDirection.Output;
+            //rSproc.Parameters.Add(rOParam);
+
             DbConn.Open();
-
             try
             {
-
+                // Write values of return value to console to check success/failure.
                 rSproc.ExecuteNonQuery();
-                Console.WriteLine("Added: " + rSproc.Parameters[3].Value.ToString());
+                Console.WriteLine("Added: " + rSproc.Parameters[5].Value.ToString());
             }
             catch (SqlException ex)
             {
                 Console.WriteLine("Error: " + ex.Message);
             }
-
             DbConn.Close();
-
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
+        /// <summary>
+        /// Function defines the action taken upon selecting an item in the ListBox that outputs the author's ID and full name.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AuthorTitleInfoListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Clear text each time we select a new author.
@@ -222,12 +277,34 @@ namespace database_integration_app
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Function defines the actoin taken upon clicking on the Address label.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddressLabel_Click(object sender, EventArgs e)
         {
-
+            // We won't be doing anything directly with the label.
         }
 
+        /// <summary>
+        /// Function defines the action taken upon the text changing in the author titles' info TextBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AuthorTitleInfoTextBox_TextChanged(object sender, EventArgs e)
+        {
+            // Do something if text in the TextBox changes.
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        private void PubsDatabaseForm_Load(object sender, EventArgs e)
+        {
+            // Do something to Form upon initialization.
+        }
+
+        private void NewAddressTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }
