@@ -308,13 +308,13 @@ namespace database_integration_app
         {
             // Do something to Form upon initialization.
             string message = $"Instructions (close MessageBox to load app GUI):\n" +
-                $"\nClick the Author Title Info Button to obtain a list of authors. " +
-                $"\nSelect a author from the list of authors. " +
-                $"\nThe TextBox in the upper-right will display all titles by that author. " +
-                $"\nEnter a new address in the input TextBox. " +
-                $"\nClick on the Update Author Title Info to update the author's info. " +
-                $"\nThe currently selected author in the ListView of authors will be the one whose info is changed. " +
-                $"\nCurrently, you will need to look in SQL Server 2018 Pubs Database to view changes." +
+                $"\n1. Click on the 'Get Author Title Info' button to obtain a list of authors. " +
+                $"\n2. Select an author from the list. " +
+                $"\n3. The TextBox in the lower-right will display all titles that correspond to the author. " +
+                $"\n4. To update an author's address, enter a new address in the 'Enter New Address' TextBox. " +
+                $"\n5. Click on the 'Update Address' button to update the author's info. " +
+                $"\n6. The address will be updated for the author selected in the ListView of authors. " +
+                $"\n7. To view changes, use SQL Server 2018. " +
                 $"\n\nTODO: Update aesthetics/functionality of app to be more intuitive.";
             MessageBox.Show(message);
   
@@ -323,6 +323,17 @@ namespace database_integration_app
         private void NewAddressTextBox_TextChanged(object sender, EventArgs e)
         {
             // Text Box.
+            if (NewAddressTextBox.Text.Count() > 40)
+            {
+                MessageBox.Show("The address should be less than 40 characters long. Please input a smaller address");
+                return;
+            }
+
+            else
+            {
+                string new_address = NewAddressTextBox.Text.ToString();
+                MessageBox.Show("The updated address for " + AuthorTitleInfoListBox.SelectedItem.ToString() + " is: " + new_address);
+            }
         }
 
         private void TitlesWrittenBySelectedAuthorLabel_Click(object sender, EventArgs e)
