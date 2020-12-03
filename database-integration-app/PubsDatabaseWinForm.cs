@@ -69,29 +69,19 @@ namespace database_integration_app
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
 
-            string queryString = "SELECT * FROM authors;";
-
             //refer to view rather than dataset
-            //string queryString = "SELECT * FROM vAuthorTitles;";
-
+            string queryString = "SELECT * FROM vAuthorTitles;";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
             DataSet authors = new DataSet();
 
-            adapter.Fill(authors, "authors");
-            //adapter.Fill(authors, "vAuthorTitles");
+            adapter.Fill(authors, "vAuthorTitles");
 
             foreach (DataRow row in authors.Tables["vAuthorTitles"].Rows)
             {
-                //string info = $"ID: {row["au_id"]} Author: {row["au_fname"]} {row["au_lname"]} Address: {row["address"]} City: {row["city"]} " +
-                //    $"State: {row["state"]} Zip Code: {row["zip"]} Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}"; 
-
-                //string author = $"Author: {row["au_fname"]} {row["au_lname"]}";
-                //AuthorTitleInfoListBox.Items.Add(author);
-
                 Author MyAuthor = new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}");
-                AuthorTitleInfoListBox.Items.Add($"Author: ID:{MyAuthor.AuthorID}, First Name:{MyAuthor.AuthorFirstName}, Last Name: {MyAuthor.AuthorLastName}");
+                AuthorTitleInfoListBox.Items.Add($"{MyAuthor.AuthorFirstName} {MyAuthor.AuthorLastName}     ID:{MyAuthor.AuthorID}");
                 AuthorsList.Add(new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}"));
             }
             conn.Close();
@@ -158,7 +148,7 @@ namespace database_integration_app
         /// <param name="DbConn"></param>
         /// <param name="tId"></param>
         /// <param name="iQty"></param>
-        public void RunAuthorTitlesInfoPStoredProcedure(SqlConnection DbConn, string id, string first_name, string last_name ,string new_address)
+        public void RunAuthorTitlesInfoPStoredProcedure(SqlConnection DbConn, string id, string first_name, string last_name, string new_address)
         {
             SqlCommand rSproc = new SqlCommand("[proc_ainfo]", DbConn);
             rSproc.CommandType = CommandType.StoredProcedure;
@@ -225,7 +215,7 @@ namespace database_integration_app
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         /// <summary>
         /// Function defines the action taken upon selecting an item in the ListBox that outputs the author's ID and full name.
         /// </summary>
@@ -248,32 +238,26 @@ namespace database_integration_app
             Author SelectedAuthor = AuthorsList[SelectedItemIndex];
 
             //////////////////////////////////////////////////////////////////////////////////
-            
+
             String connString = "Data Source=localhost;" +
             "Initial Catalog=pubs;Integrated Security=true ";
 
             SqlConnection conn = new SqlConnection(connString);
-            conn.Open();                     
+            conn.Open();
 
-            // TODO: Refactor to use a View instead.
-            string queryString = $"SELECT * FROM authors " +
-                $"INNER JOIN titleauthor ON authors.au_id = titleauthor.au_id " +
-                $"INNER JOIN titles ON titleauthor.title_id = titles.title_id " +
-                $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
+            //Refer to view 
+            string queryString = $"SELECT * FROM vAuthorTitles " +
+               $"WHERE vAuthorTitles.au_id = '{SelectedAuthor.AuthorID}'";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
-            //DataSet authors = new DataSet();
             DataSet titles = new DataSet();
 
-            adapter.Fill(titles, "titles");
+            adapter.Fill(titles, "vAuthorTitles");
 
-            foreach (DataRow row in titles.Tables["titles"].Rows)
+            foreach (DataRow row in titles.Tables["vAuthorTitles"].Rows)
             {
-                //string info = $"Author: {row["au_fname"]} {row["au_lname"]} Address: {row["address"]} City: {row["city"]} " +
-                //    $"State: {row["state"]} Zip Code: {row["zip"]} Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}"; 
-
-                string title = $"Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}";
+                string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${row["price"]}";
                 AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
             }
             conn.Close();
@@ -302,7 +286,7 @@ namespace database_integration_app
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         /// <summary>
         /// Function controls what happens when the WinForms app Forms is initially initialized.
         /// </summary>
@@ -321,7 +305,7 @@ namespace database_integration_app
                 $"\n7. To view changes, use SQL Server 2018. " +
                 $"\n\nTODO: Update aesthetics/functionality of app to be more intuitive.";
             MessageBox.Show(message);
-  
+
         }
 
         private void NewAddressTextBox_TextChanged(object sender, EventArgs e)
