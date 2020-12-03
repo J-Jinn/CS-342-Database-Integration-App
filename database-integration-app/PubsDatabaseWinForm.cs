@@ -71,14 +71,18 @@ namespace database_integration_app
 
             string queryString = "SELECT * FROM authors;";
 
+            //refer to view rather than dataset
+            //string queryString = "SELECT * FROM vAuthorTitles;";
+
+
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
             DataSet authors = new DataSet();
-            //DataSet titles = new DataSet();
 
             adapter.Fill(authors, "authors");
+            //adapter.Fill(authors, "vAuthorTitles");
 
-            foreach (DataRow row in authors.Tables["authors"].Rows)
+            foreach (DataRow row in authors.Tables["vAuthorTitles"].Rows)
             {
                 //string info = $"ID: {row["au_id"]} Author: {row["au_fname"]} {row["au_lname"]} Address: {row["address"]} City: {row["city"]} " +
                 //    $"State: {row["state"]} Zip Code: {row["zip"]} Book Title: {row["title"]} Publication Date: {row["pubdate"]} Price: {row["price"]}"; 
