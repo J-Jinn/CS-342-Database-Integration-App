@@ -70,7 +70,7 @@ namespace database_integration_app
             conn.Open();
 
             //refer to view rather than dataset
-            string queryString = "SELECT * FROM vAuthorTitles;";
+            string queryString = "SELECT * FROM [vAuthors];";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
@@ -81,7 +81,7 @@ namespace database_integration_app
             foreach (DataRow row in authors.Tables["vAuthorTitles"].Rows)
             {
                 Author MyAuthor = new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}");
-                AuthorTitleInfoListBox.Items.Add($"{MyAuthor.AuthorFirstName} {MyAuthor.AuthorLastName}     ID:{MyAuthor.AuthorID}");
+                AuthorTitleInfoListBox.Items.Add($"Author: ID:{MyAuthor.AuthorID}, Name:{MyAuthor.AuthorFirstName} {MyAuthor.AuthorLastName}");
                 AuthorsList.Add(new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}"));
             }
             conn.Close();
@@ -237,6 +237,7 @@ namespace database_integration_app
             // Get selected author based on item index.
             Author SelectedAuthor = AuthorsList[SelectedItemIndex];
 
+
             //////////////////////////////////////////////////////////////////////////////////
 
             String connString = "Data Source=localhost;" +
@@ -245,17 +246,52 @@ namespace database_integration_app
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
 
-            //Refer to view 
-            string queryString = $"SELECT * FROM vAuthorTitles " +
-               $"WHERE vAuthorTitles.au_id = '{SelectedAuthor.AuthorID}'";
+            // Alter the view's WHERE clause to point to the selected author.
+            string queryString =
+                $"ALTER VIEW [vAuthorTitles] " +
+                $"AS " +
+                $"SELECT " +
+                $"authors.au_id, authors.au_fname, authors.au_lname, " +
+                $"authors.address, authors.city, authors.state, authors.zip, " +
+                $"titles.title, titles.pubdate, titles.price " +
+                $"FROM authors " +
+                $"INNER JOIN titleauthor ON authors.au_id = titleauthor.au_id " +
+                $"INNER JOIN titles ON titleauthor.title_id = titles.title_id " +
+                $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
             DataSet titles = new DataSet();
 
-            adapter.Fill(titles, "vAuthorTitles");
+            adapter.Fill(titles, "titles");
 
-            foreach (DataRow row in titles.Tables["vAuthorTitles"].Rows)
+            //////////////////////////////////////////////////////////////////////////////////
+
+            //// FIXME: Need to change the view itself to set new author ID in WHERE clause (this won't work as is).
+            //string queryString = $"SELECT * FROM vAuthorTitles " +
+            //   $"WHERE vAuthorTitles.au_id = '{SelectedAuthor.AuthorID}'";
+
+            //// FIXME: Is there a way to use UPDATE view to update the author ID in the WHERE clause of the view (won't function as-is)?
+            //string queryString2 = $"UPDATE[vAuthorTitles] " +
+            //    $"SET au_id = '{SelectedAuthor.AuthorID}' " +
+            //    $"WHERE au_id = '{SelectedAuthor.AuthorID}'";
+
+            //// TODO: Refactor to use a View instead (this will currently work as intended).
+            //string queryString2 = $"SELECT * FROM authors " +
+            //    $"INNER JOIN titleauthor ON authors.au_id = titleauthor.au_id " +
+            //    $"INNER JOIN titles ON titleauthor.title_id = titles.title_id " +
+            //    $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
+
+            // This directly refers to the View after altering the View to reflect the currently selected Author ID.
+            string queryString2 = $"SELECT * FROM [vAuthorTitles] ";
+
+            SqlDataAdapter adapter2 = new SqlDataAdapter(queryString2, conn);
+
+            DataSet titles2 = new DataSet();
+
+            adapter2.Fill(titles2, "titles2");
+
+            foreach (DataRow row in titles2.Tables["titles2"].Rows)
             {
                 string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${row["price"]}";
                 AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
@@ -266,7 +302,7 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines the actoin taken upon clicking on the Address label.
+        /// Function defines the action taken upon clicking on the Address label.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
