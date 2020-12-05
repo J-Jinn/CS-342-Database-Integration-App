@@ -90,8 +90,7 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines the action taken upon clicking the button to updated a author's personal address information.
-        /// 
+        /// Function defines the action taken upon clicking the button to update a author's personal information in the Authors Table of the Pubs DB.
         ///  Important Note: Currently, The specific author is defined by the selected author in the AuthorTitleInfo ListBox.
         /// </summary>
         /// <param name="sender"></param>
@@ -110,21 +109,33 @@ namespace database_integration_app
                 string authorID = $"{SelectedAuthor.AuthorID}";
                 string authorFirstName = $"";
                 string authorLastName = $"";
-                string newAddress = NewAddressTextBox.Text.ToString();
+                string newData = NewDataTextBox.Text.ToString();
                 if (debug)
                 {
                     Console.WriteLine($"Author ID: {authorID}");
-                    Console.WriteLine($"Author's New Address: {newAddress}");
+                    Console.WriteLine($"Author's New Data: {newData}");
                 }
                 SqlConnection conn = new SqlConnection("Data Source=localhost;" +
                                  "Initial Catalog=pubs;Integrated Security=true ");
 
+                if (authorID.Length == 0)
+                {
+                    string message = $"Please select an author first before attempting to update any information!";
+                    MessageBox.Show(message);
+                    return;
+                }
 
                 // Call the stored procedure.
-                RunAuthorTitlesInfoPStoredProcedure(conn, authorID, authorFirstName, authorLastName, newAddress);
+                RunAuthorTitlesInfoPStoredProcedure(conn, authorID);
             }
             catch (Exception error)
             {
+                if (error.Message.Contains("Index"));
+                {
+                    string message = $"Please select an author first before attempting to update any information!";
+                    MessageBox.Show(message);
+                    return;
+                }
                 Console.WriteLine("Error: " + error.Message);
             }
 
@@ -139,6 +150,26 @@ namespace database_integration_app
             //adapter.UpdateCommand = updateCmd;
             //adapter.Update(table);
         }
+                      
+        /// <summary>
+        /// Function defines the action taken when the text changes in the NewDataTextBox for updating the data of the selected author.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewDataTextBox_TextChanged(object sender, EventArgs e)
+        {
+           // Do something.
+        }
+
+        /// <summary>
+        /// Function defines the action taken when the user selects a different item in the drop-down list for the author table attributes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectAuthorTableFieldToUpdateComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Do something.
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -148,8 +179,95 @@ namespace database_integration_app
         /// <param name="DbConn"></param>
         /// <param name="tId"></param>
         /// <param name="iQty"></param>
-        public void RunAuthorTitlesInfoPStoredProcedure(SqlConnection DbConn, string id, string first_name, string last_name, string new_address)
+        public void RunAuthorTitlesInfoPStoredProcedure(SqlConnection DbConn, string id)
         {
+            string column_name = $"";
+            // Get user input from TextBox that specifies new value to change author's attribute to.
+            string data_value = NewDataTextBox.Text;
+
+            // Determine the column name to use in Authors Table based on selected index of ComboBox drop-down list.
+            int caseSwitch = SelectAuthorTableFieldToUpdateComboBox.SelectedIndex;
+            switch (caseSwitch)
+            {
+                case 0:
+                    column_name = "au_fname";
+                    if (data_value.Length > 20)
+                    {
+                        string message = $"First name must be 20 characters or less!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 1:
+                    column_name = "au_lname";
+                    if (data_value.Length > 40)
+                    {
+                        string message = $"Last name must be 40 characters or less!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 2:
+                    column_name = "phone";
+                    if (data_value.Length != 12)
+                    {
+                        string message = $"Phone number must be in the format: 'XXX XXX-XXXX'!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 3:
+                    column_name = "address";
+                    if (data_value.Length > 40)
+                    {
+                        string message = $"Address must be 40 characters or less!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 4:
+                    column_name = "city";
+                    if (data_value.Length > 20)
+                    {
+                        string message = $"City name must be 20 characters or less!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 5:
+                    column_name = "state";
+                    if (data_value.Length != 2)
+                    {
+                        string message = $"State code must be in the format: 'XX'!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 6:
+                    column_name = "zip";
+                    if (data_value.Length != 5)
+                    {
+                        string message = $"Zip Code must be 5 characters exactly!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                case 7:
+                    column_name = "contract";
+                    if (data_value != "0" || data_value != "1")
+                    {
+                        string message = $"Contract status be either '1' or '0'!";
+                        MessageBox.Show(message);
+                        return;
+                    }
+                    break;
+                default:
+                    string message2 = $"Please select an attribute to update!";
+                    MessageBox.Show(message2);
+                    Console.WriteLine("Default case");
+                    break;
+            }
+
             SqlCommand rSproc = new SqlCommand("[proc_ainfo]", DbConn);
             rSproc.CommandType = CommandType.StoredProcedure;
 
@@ -169,29 +287,21 @@ namespace database_integration_app
             authorIDParam.Value = id;
             rSproc.Parameters.Add(authorIDParam);
 
-            // Deprecated.
-            SqlParameter authorFirstNameParam = new SqlParameter();
-            authorFirstNameParam.ParameterName = "@AuthorFirstName";
-            authorFirstNameParam.SqlDbType = SqlDbType.VarChar;
-            authorFirstNameParam.Direction = ParameterDirection.Input;
-            authorFirstNameParam.Value = first_name;
-            rSproc.Parameters.Add(authorFirstNameParam);
+            // Input parameter - specify the column name to change the data value for.
+            SqlParameter columnNameParam = new SqlParameter();
+            columnNameParam.ParameterName = "@AttributeToChange";
+            columnNameParam.SqlDbType = SqlDbType.VarChar;
+            columnNameParam.Direction = ParameterDirection.Input;
+            columnNameParam.Value = column_name;
+            rSproc.Parameters.Add(columnNameParam);
 
-            // Deprecated.
-            SqlParameter authorLastNameParam = new SqlParameter();
-            authorLastNameParam.ParameterName = "@AuthorLastName";
-            authorLastNameParam.SqlDbType = SqlDbType.VarChar;
-            authorLastNameParam.Direction = ParameterDirection.Input;
-            authorLastNameParam.Value = last_name;
-            rSproc.Parameters.Add(authorLastNameParam);
-
-            // Input parameter - change author's address to...
-            SqlParameter authorNewAddressParam = new SqlParameter();
-            authorNewAddressParam.ParameterName = "@AuthorNewAddress";
-            authorNewAddressParam.SqlDbType = SqlDbType.VarChar;
-            authorNewAddressParam.Direction = ParameterDirection.Input;
-            authorNewAddressParam.Value = new_address;
-            rSproc.Parameters.Add(authorNewAddressParam);
+            // Input parameter - specify the data value to change to.
+            SqlParameter authorNewDataParam = new SqlParameter();
+            authorNewDataParam.ParameterName = "@AuthorNewData";
+            authorNewDataParam.SqlDbType = SqlDbType.VarChar;
+            authorNewDataParam.Direction = ParameterDirection.Input;
+            authorNewDataParam.Value = data_value;
+            rSproc.Parameters.Add(authorNewDataParam);
 
             // Output parameters (we don't need one).
             //SqlParameter rOParam = new SqlParameter();
@@ -205,7 +315,18 @@ namespace database_integration_app
             {
                 // Write values of return value to console to check success/failure.
                 rSproc.ExecuteNonQuery();
-                Console.WriteLine("Added: " + rSproc.Parameters[5].Value.ToString());
+                Console.WriteLine("Return Value: " + rSproc.Parameters[0].Value.ToString());
+
+                if (rSproc.Parameters[0].Value.ToString() == "0")
+                {
+                    string message = $"Sucessfully updated Pubs database!";
+                    MessageBox.Show(message);
+                }
+                else
+                {
+                    string message = $"Failed to update Pubs database!";
+                    MessageBox.Show(message);
+                }
             }
             catch (SqlException ex)
             {
@@ -247,6 +368,7 @@ namespace database_integration_app
             conn.Open();
 
             // Alter the view's WHERE clause to point to the selected author.
+            // This is technically "using" the view we created (views don't support dynamic variable assignment via parameters).
             string queryString =
                 $"ALTER VIEW [vAuthorTitles] " +
                 $"AS " +
@@ -302,16 +424,6 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines the action taken upon clicking on the Address label.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AddressLabel_Click(object sender, EventArgs e)
-        {
-            // We won't be doing anything directly with the label.
-        }
-
-        /// <summary>
         /// Function defines the action taken upon the text changing in the author titles' info TextBox.
         /// </summary>
         /// <param name="sender"></param>
@@ -324,50 +436,69 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function controls what happens when the WinForms app Forms is initially initialized.
+        /// Function defines the action taken when the WinForms app Forms is initially initialized.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void PubsDatabaseForm_Load(object sender, EventArgs e)
         {
             // Do something to Form upon initialization.
-            string message = $"Instructions (close MessageBox to load app GUI):\n" +
-                $"\n1. Click on the 'Get Author Title Info' button to obtain a list of authors. " +
-                $"\n2. Select an author from the list. " +
-                $"\n3. The TextBox in the lower-right will display all titles that correspond to the author. " +
-                $"\n4. To update an author's address, enter a new address in the 'Enter New Address' TextBox. " +
-                $"\n5. Click on the 'Update Address' button to update the author's info. " +
-                $"\n6. The address will be updated for the author selected in the ListView of authors. " +
-                $"\n7. To view changes, use SQL Server 2018. " +
-                $"\n\nTODO: Update aesthetics/functionality of app to be more intuitive.";
-            MessageBox.Show(message);
-
         }
 
-        private void NewAddressTextBox_TextChanged(object sender, EventArgs e)
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Function defines the action taken upon clicking on the Update label.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateLabel_Click(object sender, EventArgs e)
         {
-            // Text Box.
-            if (NewAddressTextBox.Text.Count() > 40)
-            {
-                MessageBox.Show("The address should be less than 40 characters long. Please input a smaller address");
-                return;
-            }
-
-            else
-            {
-                string new_address = NewAddressTextBox.Text.ToString();
-                MessageBox.Show("The updated address for " + AuthorTitleInfoListBox.SelectedItem.ToString() + " is: " + new_address);
-            }
+            // Label.
         }
 
+        /// <summary>
+        /// Function defines the action taken upon clicking on the SelectAuthorTableFieldToUpdate label.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectAuthorTableFieldToUpdateLabel_Click(object sender, EventArgs e)
+        {
+            // Label.
+        }
+
+        /// <summary>
+        /// Function defines the action taken upon clicking on the TitlesWrittenBySelectedAuthor label.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TitlesWrittenBySelectedAuthorLabel_Click(object sender, EventArgs e)
         {
             // Label.
         }
 
+        /// <summary>
+        /// Function defines the action taken upon clicking on the ListOfAuthors label.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListOfAuthorsLabel_Click(object sender, EventArgs e)
         {
             // Label.
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Function defines the action taken upon clicking the ExitProgram Button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExitProgramButton_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

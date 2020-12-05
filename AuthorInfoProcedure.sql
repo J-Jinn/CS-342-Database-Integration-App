@@ -30,12 +30,12 @@ GO
 ---------------------------------------------------------------------------------------
 
 CREATE PROC [proc_ainfo]
-	@AuthorID VARCHAR(11),
-	@AuthorFirstName VARCHAR(20),
-	@AuthorLastName VARCHAR(40),
-	@AuthorNewAddress VARCHAR(40)
+	@AuthorID NVARCHAR(11),
+	@AttributeToChange NVARCHAR(20),
+	@AuthorNewData NVARCHAR(50)
 AS
 BEGIN
+	DECLARE @DynamicSQL NVARCHAR(500);
 	DECLARE @RETURNVALUE INT;
 	SET @RETURNVALUE = -1;
 
@@ -43,9 +43,12 @@ BEGIN
 				FROM authors 
 				WHERE authors.au_id = @AuthorID)
 		BEGIN
-			UPDATE dbo.authors
-				SET address = @AuthorNewAddress
-				WHERE authors.au_id = @AuthorID;
+			-- Dynamic SQL so we can change column name AND values dynamically.
+			SET @dynamicSQL = N'UPDATE dbo.authors SET dbo.authors.' + @AttributeToChange + ' = ''' + @AuthorNewData + 
+			''' WHERE authors.au_id = ''' + @AuthorID + ''';'
+			PRINT @DynamicSQL;
+
+			EXECUTE sp_Executesql @DynamicSQL;
 			SET @RETURNVALUE = 0;
 		END
 	ELSE
@@ -63,21 +66,21 @@ GO
 ---------------------------------------------------------------------------------------
 
 BEGIN TRY
-	DECLARE @AuFirst VARCHAR(20);
-	SET @AuFirst = 'Joseph';
-	DECLARE @AuLast VARCHAR(40);
-	SET @AuLast = 'Jinn';
-	DECLARE @AuAddress VARCHAR(40);
-	SET @AuAddress = 'New Address 1';
-	DECLARE @AuID VARCHAR(11);
+	DECLARE @AuID NVARCHAR(11);
 	SET @AuID = '616-29-8402';
+
+	DECLARE @AuAttribute NVARCHAR(20);
+	SET @AuAttribute = 'contract';
+
+	DECLARE @AuNewData NVARCHAR(50);
+	SET @AuNewData = '0';
+
 	DECLARE @RETURNVALUE INT;
 
 	EXEC @RETURNVALUE = [proc_ainfo]
 		@AuthorID = @AuID,
-		@AuthorFirstName = @AuFirst, 
-		@AuthorLastName = @AuLast, 
-		@AuthorNewAddress = @AuAddress;
+		@AttributeToChange = @AuAttribute,
+		@AuthorNewData = @AuNewData;
 		PRINT 'Return Value: ' + CONVERT(VARCHAR, @RETURNVALUE);
 END TRY
 BEGIN CATCH

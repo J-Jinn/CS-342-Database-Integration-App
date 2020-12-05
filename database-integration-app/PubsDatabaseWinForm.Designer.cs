@@ -32,11 +32,14 @@ namespace database_integration_app
             this.GetAuthorTitleInfoButton = new System.Windows.Forms.Button();
             this.AuthorTitleInfoListBox = new System.Windows.Forms.ListBox();
             this.UpdateAuthorTitleInfoButton = new System.Windows.Forms.Button();
-            this.NewAddressTextBox = new System.Windows.Forms.TextBox();
-            this.AddressLabel = new System.Windows.Forms.Label();
+            this.NewDataTextBox = new System.Windows.Forms.TextBox();
+            this.UpdateLabel = new System.Windows.Forms.Label();
             this.AuthorTitleInfoTextBox = new System.Windows.Forms.TextBox();
             this.TitlesWrittenBySelectedAuthorLabel = new System.Windows.Forms.Label();
             this.ListOfAuthorsLabel = new System.Windows.Forms.Label();
+            this.SelectAuthorTableFieldToUpdateComboBox = new System.Windows.Forms.ComboBox();
+            this.SelectAuthorTableFieldToUpdateLabel = new System.Windows.Forms.Label();
+            this.ExitProgramButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // GetAuthorTitleInfoButton
@@ -72,30 +75,30 @@ namespace database_integration_app
             this.UpdateAuthorTitleInfoButton.Name = "UpdateAuthorTitleInfoButton";
             this.UpdateAuthorTitleInfoButton.Size = new System.Drawing.Size(150, 45);
             this.UpdateAuthorTitleInfoButton.TabIndex = 3;
-            this.UpdateAuthorTitleInfoButton.Text = "Update Address";
+            this.UpdateAuthorTitleInfoButton.Text = "Update";
             this.UpdateAuthorTitleInfoButton.UseVisualStyleBackColor = true;
             this.UpdateAuthorTitleInfoButton.Click += new System.EventHandler(this.UpdateAuthorTitleInfoButton_Click);
             // 
-            // NewAddressTextBox
+            // NewDataTextBox
             // 
-            this.NewAddressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewAddressTextBox.Location = new System.Drawing.Point(612, 30);
-            this.NewAddressTextBox.Name = "NewAddressTextBox";
-            this.NewAddressTextBox.Size = new System.Drawing.Size(552, 22);
-            this.NewAddressTextBox.TabIndex = 4;
-            this.NewAddressTextBox.Text = "Enter new address here...";
-            this.NewAddressTextBox.TextChanged += new System.EventHandler(this.NewAddressTextBox_TextChanged);
+            this.NewDataTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewDataTextBox.Location = new System.Drawing.Point(612, 30);
+            this.NewDataTextBox.Name = "NewDataTextBox";
+            this.NewDataTextBox.Size = new System.Drawing.Size(552, 22);
+            this.NewDataTextBox.TabIndex = 4;
+            this.NewDataTextBox.Text = "Enter new data here...";
+            this.NewDataTextBox.TextChanged += new System.EventHandler(this.NewDataTextBox_TextChanged);
             // 
-            // AddressLabel
+            // UpdateLabel
             // 
-            this.AddressLabel.AutoSize = true;
-            this.AddressLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AddressLabel.Location = new System.Drawing.Point(609, 9);
-            this.AddressLabel.Name = "AddressLabel";
-            this.AddressLabel.Size = new System.Drawing.Size(135, 18);
-            this.AddressLabel.TabIndex = 5;
-            this.AddressLabel.Text = "Enter New Address";
-            this.AddressLabel.Click += new System.EventHandler(this.AddressLabel_Click);
+            this.UpdateLabel.AutoSize = true;
+            this.UpdateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.UpdateLabel.Location = new System.Drawing.Point(609, 9);
+            this.UpdateLabel.Name = "UpdateLabel";
+            this.UpdateLabel.Size = new System.Drawing.Size(94, 18);
+            this.UpdateLabel.TabIndex = 5;
+            this.UpdateLabel.Text = "Update Data:";
+            this.UpdateLabel.Click += new System.EventHandler(this.UpdateLabel_Click);
             // 
             // AuthorTitleInfoTextBox
             // 
@@ -130,16 +133,61 @@ namespace database_integration_app
             this.ListOfAuthorsLabel.Text = "List of Authors in Pubs Database";
             this.ListOfAuthorsLabel.Click += new System.EventHandler(this.ListOfAuthorsLabel_Click);
             // 
+            // SelectAuthorTableFieldToUpdateComboBox
+            // 
+            this.SelectAuthorTableFieldToUpdateComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.SelectAuthorTableFieldToUpdateComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SelectAuthorTableFieldToUpdateComboBox.FormattingEnabled = true;
+            this.SelectAuthorTableFieldToUpdateComboBox.Items.AddRange(new object[] {
+            "Author First Name (au_fname)",
+            "Author Last Name (au_lname)",
+            "Author Phone Number (phone)",
+            "Author Address (address)",
+            "Author City (city)",
+            "Author State (state)",
+            "Author Zip Code (zip)",
+            "Author Contract Status (contract)"});
+            this.SelectAuthorTableFieldToUpdateComboBox.Location = new System.Drawing.Point(612, 87);
+            this.SelectAuthorTableFieldToUpdateComboBox.MaxDropDownItems = 20;
+            this.SelectAuthorTableFieldToUpdateComboBox.Name = "SelectAuthorTableFieldToUpdateComboBox";
+            this.SelectAuthorTableFieldToUpdateComboBox.Size = new System.Drawing.Size(173, 24);
+            this.SelectAuthorTableFieldToUpdateComboBox.TabIndex = 9;
+            this.SelectAuthorTableFieldToUpdateComboBox.SelectedIndexChanged += new System.EventHandler(this.SelectAuthorTableFieldToUpdateComboBox_SelectedIndexChanged);
+            // 
+            // SelectAuthorTableFieldToUpdateLabel
+            // 
+            this.SelectAuthorTableFieldToUpdateLabel.AutoSize = true;
+            this.SelectAuthorTableFieldToUpdateLabel.Location = new System.Drawing.Point(609, 63);
+            this.SelectAuthorTableFieldToUpdateLabel.Name = "SelectAuthorTableFieldToUpdateLabel";
+            this.SelectAuthorTableFieldToUpdateLabel.Size = new System.Drawing.Size(179, 13);
+            this.SelectAuthorTableFieldToUpdateLabel.TabIndex = 10;
+            this.SelectAuthorTableFieldToUpdateLabel.Text = "Select Author Table Field to Update:";
+            this.SelectAuthorTableFieldToUpdateLabel.Click += new System.EventHandler(this.SelectAuthorTableFieldToUpdateLabel_Click);
+            // 
+            // ExitProgramButton
+            // 
+            this.ExitProgramButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ExitProgramButton.Location = new System.Drawing.Point(1014, 611);
+            this.ExitProgramButton.Name = "ExitProgramButton";
+            this.ExitProgramButton.Size = new System.Drawing.Size(150, 45);
+            this.ExitProgramButton.TabIndex = 11;
+            this.ExitProgramButton.Text = "Exit Program";
+            this.ExitProgramButton.UseVisualStyleBackColor = true;
+            this.ExitProgramButton.Click += new System.EventHandler(this.ExitProgramButton_Click);
+            // 
             // PubsDatabaseWinForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1222, 678);
+            this.Controls.Add(this.ExitProgramButton);
+            this.Controls.Add(this.SelectAuthorTableFieldToUpdateLabel);
+            this.Controls.Add(this.SelectAuthorTableFieldToUpdateComboBox);
             this.Controls.Add(this.ListOfAuthorsLabel);
             this.Controls.Add(this.TitlesWrittenBySelectedAuthorLabel);
             this.Controls.Add(this.AuthorTitleInfoTextBox);
-            this.Controls.Add(this.AddressLabel);
-            this.Controls.Add(this.NewAddressTextBox);
+            this.Controls.Add(this.UpdateLabel);
+            this.Controls.Add(this.NewDataTextBox);
             this.Controls.Add(this.UpdateAuthorTitleInfoButton);
             this.Controls.Add(this.AuthorTitleInfoListBox);
             this.Controls.Add(this.GetAuthorTitleInfoButton);
@@ -155,11 +203,14 @@ namespace database_integration_app
         private System.Windows.Forms.Button GetAuthorTitleInfoButton;
         private System.Windows.Forms.ListBox AuthorTitleInfoListBox;
         private System.Windows.Forms.Button UpdateAuthorTitleInfoButton;
-        private System.Windows.Forms.TextBox NewAddressTextBox;
-        private System.Windows.Forms.Label AddressLabel;
+        private System.Windows.Forms.TextBox NewDataTextBox;
+        private System.Windows.Forms.Label UpdateLabel;
         private System.Windows.Forms.TextBox AuthorTitleInfoTextBox;
         private System.Windows.Forms.Label TitlesWrittenBySelectedAuthorLabel;
         private System.Windows.Forms.Label ListOfAuthorsLabel;
+        private System.Windows.Forms.ComboBox SelectAuthorTableFieldToUpdateComboBox;
+        private System.Windows.Forms.Label SelectAuthorTableFieldToUpdateLabel;
+        private System.Windows.Forms.Button ExitProgramButton;
     }
 }
 
