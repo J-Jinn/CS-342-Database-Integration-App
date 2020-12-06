@@ -376,25 +376,51 @@ namespace database_integration_app
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
 
-            // Alter the view's WHERE clause to point to the selected author.
-            // This is technically "using" the view we created (views don't support dynamic variable assignment via parameters).
             string queryString =
-                $"ALTER VIEW [vAuthorTitles] " +
-                $"AS " +
-                $"SELECT " +
-                $"authors.au_id, authors.au_fname, authors.au_lname, " +
-                $"authors.address, authors.city, authors.state, authors.zip, " +
-                $"titles.title, titles.pubdate, titles.price " +
-                $"FROM authors " +
-                $"INNER JOIN titleauthor ON authors.au_id = titleauthor.au_id " +
-                $"INNER JOIN titles ON titleauthor.title_id = titles.title_id " +
-                $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
+                $"SELECT * FROM vATitles " +
+                $"WHERE au_id = '{SelectedAuthor.AuthorID}'";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
 
             DataSet titles = new DataSet();
 
             adapter.Fill(titles, "titles");
+
+            foreach (DataRow row in titles.Tables["titles"].Rows)
+            {
+                if (!(row["price"].Equals(System.DBNull.Value)))
+                {
+                    double price = Convert.ToDouble(row["price"]);
+                    string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${price}";
+                    AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
+                }
+
+                else
+                {
+                    string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: NA";
+                    AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
+                }
+            }
+
+            // Alter the view's WHERE clause to point to the selected author.
+            // This is technically "using" the view we created (views don't support dynamic variable assignment via parameters).
+            //string queryString =
+            //    $"ALTER VIEW [vAuthorTitles] " +
+            //    $"AS " +
+            //    $"SELECT " +
+            //    $"authors.au_id, authors.au_fname, authors.au_lname, " +
+            //    $"authors.address, authors.city, authors.state, authors.zip, " +
+            //    $"titles.title, titles.pubdate, titles.price " +
+            //    $"FROM authors " +
+            //    $"INNER JOIN titleauthor ON authors.au_id = titleauthor.au_id " +
+            //    $"INNER JOIN titles ON titleauthor.title_id = titles.title_id " +
+            //    $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
+
+            //SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
+
+            //DataSet titles = new DataSet();
+
+            //adapter.Fill(titles, "titles");
 
             //////////////////////////////////////////////////////////////////////////////////
 
@@ -414,19 +440,19 @@ namespace database_integration_app
             //    $"WHERE authors.au_id = '{SelectedAuthor.AuthorID}'";
 
             // This directly refers to the View after altering the View to reflect the currently selected Author ID.
-            string queryString2 = $"SELECT * FROM [vAuthorTitles] ";
+            //string queryString2 = $"SELECT * FROM [vAuthorTitles] ";
 
-            SqlDataAdapter adapter2 = new SqlDataAdapter(queryString2, conn);
+            //SqlDataAdapter adapter2 = new SqlDataAdapter(queryString2, conn);
 
-            DataSet titles2 = new DataSet();
+            //DataSet titles2 = new DataSet();
 
-            adapter2.Fill(titles2, "titles2");
+            //adapter2.Fill(titles2, "titles2");
 
-            foreach (DataRow row in titles2.Tables["titles2"].Rows)
-            {
-                string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${row["price"]}";
-                AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
-            }
+            //foreach (DataRow row in titles2.Tables["titles2"].Rows)
+            //{
+            //    string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${row["price"]}";
+            //    AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
+            //}
             conn.Close();
         }
 
