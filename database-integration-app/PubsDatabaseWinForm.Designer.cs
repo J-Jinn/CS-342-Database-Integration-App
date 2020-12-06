@@ -49,7 +49,7 @@ namespace database_integration_app
             this.GetAuthorTitleInfoButton.Name = "GetAuthorTitleInfoButton";
             this.GetAuthorTitleInfoButton.Size = new System.Drawing.Size(131, 45);
             this.GetAuthorTitleInfoButton.TabIndex = 1;
-            this.GetAuthorTitleInfoButton.Text = "Get Author Title Info";
+            this.GetAuthorTitleInfoButton.Text = "Get List of Authors";
             this.GetAuthorTitleInfoButton.UseVisualStyleBackColor = true;
             this.GetAuthorTitleInfoButton.Click += new System.EventHandler(this.GetAuthorTitleInfoButton_Click);
             // 
@@ -71,7 +71,7 @@ namespace database_integration_app
             // UpdateAuthorTitleInfoButton
             // 
             this.UpdateAuthorTitleInfoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.UpdateAuthorTitleInfoButton.Location = new System.Drawing.Point(1014, 63);
+            this.UpdateAuthorTitleInfoButton.Location = new System.Drawing.Point(1017, 131);
             this.UpdateAuthorTitleInfoButton.Name = "UpdateAuthorTitleInfoButton";
             this.UpdateAuthorTitleInfoButton.Size = new System.Drawing.Size(150, 45);
             this.UpdateAuthorTitleInfoButton.TabIndex = 3;
@@ -82,7 +82,7 @@ namespace database_integration_app
             // NewDataTextBox
             // 
             this.NewDataTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewDataTextBox.Location = new System.Drawing.Point(612, 30);
+            this.NewDataTextBox.Location = new System.Drawing.Point(615, 103);
             this.NewDataTextBox.Name = "NewDataTextBox";
             this.NewDataTextBox.Size = new System.Drawing.Size(552, 22);
             this.NewDataTextBox.TabIndex = 4;
@@ -93,7 +93,7 @@ namespace database_integration_app
             // 
             this.UpdateLabel.AutoSize = true;
             this.UpdateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.UpdateLabel.Location = new System.Drawing.Point(609, 9);
+            this.UpdateLabel.Location = new System.Drawing.Point(609, 73);
             this.UpdateLabel.Name = "UpdateLabel";
             this.UpdateLabel.Size = new System.Drawing.Size(94, 18);
             this.UpdateLabel.TabIndex = 5;
@@ -147,19 +147,20 @@ namespace database_integration_app
             "Author State (state)",
             "Author Zip Code (zip)",
             "Author Contract Status (contract)"});
-            this.SelectAuthorTableFieldToUpdateComboBox.Location = new System.Drawing.Point(612, 87);
+            this.SelectAuthorTableFieldToUpdateComboBox.Location = new System.Drawing.Point(615, 30);
             this.SelectAuthorTableFieldToUpdateComboBox.MaxDropDownItems = 20;
             this.SelectAuthorTableFieldToUpdateComboBox.Name = "SelectAuthorTableFieldToUpdateComboBox";
-            this.SelectAuthorTableFieldToUpdateComboBox.Size = new System.Drawing.Size(173, 24);
+            this.SelectAuthorTableFieldToUpdateComboBox.Size = new System.Drawing.Size(327, 24);
             this.SelectAuthorTableFieldToUpdateComboBox.TabIndex = 9;
             this.SelectAuthorTableFieldToUpdateComboBox.SelectedIndexChanged += new System.EventHandler(this.SelectAuthorTableFieldToUpdateComboBox_SelectedIndexChanged);
             // 
             // SelectAuthorTableFieldToUpdateLabel
             // 
             this.SelectAuthorTableFieldToUpdateLabel.AutoSize = true;
-            this.SelectAuthorTableFieldToUpdateLabel.Location = new System.Drawing.Point(609, 63);
+            this.SelectAuthorTableFieldToUpdateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SelectAuthorTableFieldToUpdateLabel.Location = new System.Drawing.Point(609, 9);
             this.SelectAuthorTableFieldToUpdateLabel.Name = "SelectAuthorTableFieldToUpdateLabel";
-            this.SelectAuthorTableFieldToUpdateLabel.Size = new System.Drawing.Size(179, 13);
+            this.SelectAuthorTableFieldToUpdateLabel.Size = new System.Drawing.Size(243, 18);
             this.SelectAuthorTableFieldToUpdateLabel.TabIndex = 10;
             this.SelectAuthorTableFieldToUpdateLabel.Text = "Select Author Table Field to Update:";
             this.SelectAuthorTableFieldToUpdateLabel.Click += new System.EventHandler(this.SelectAuthorTableFieldToUpdateLabel_Click);

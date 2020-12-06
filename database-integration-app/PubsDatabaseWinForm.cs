@@ -76,9 +76,9 @@ namespace database_integration_app
 
             DataSet authors = new DataSet();
 
-            adapter.Fill(authors, "vAuthorTitles");
+            adapter.Fill(authors, "vAuthors");
 
-            foreach (DataRow row in authors.Tables["vAuthorTitles"].Rows)
+            foreach (DataRow row in authors.Tables["vAuthors"].Rows)
             {
                 Author MyAuthor = new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}");
                 AuthorTitleInfoListBox.Items.Add($"Author: ID:{MyAuthor.AuthorID}, Name:{MyAuthor.AuthorFirstName} {MyAuthor.AuthorLastName}");
@@ -319,7 +319,16 @@ namespace database_integration_app
 
                 if (rSproc.Parameters[0].Value.ToString() == "0")
                 {
-                    string message = $"Sucessfully updated Pubs database!";
+                    //Get selected item text
+                    int SelectedItem = SelectAuthorTableFieldToUpdateComboBox.SelectedIndex;
+                    // Get selected item index.
+                    int SelectedItemIndex = AuthorTitleInfoListBox.SelectedIndex;
+                    // Get selected author based on item index.
+                    Author SelectedAuthor = AuthorsList[SelectedItemIndex];
+                    string authorName = $"{SelectedAuthor.AuthorFirstName} {SelectedAuthor.AuthorLastName}";
+
+
+                    string message = $"Sucessfully updated Pubs database!\n" + $"{authorName}: The value for field '{column_name}' was changed to {data_value}";
                     MessageBox.Show(message);
                 }
                 else
