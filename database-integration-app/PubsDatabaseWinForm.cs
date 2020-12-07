@@ -386,19 +386,27 @@ namespace database_integration_app
 
             adapter.Fill(titles, "titles");
 
-            foreach (DataRow row in titles.Tables["titles"].Rows)
+            if (titles.Tables[0].Rows.Count == 0)
             {
-                if (!(row["price"].Equals(System.DBNull.Value)))
-                {
-                    double price = Convert.ToDouble(row["price"]);
-                    string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${price}";
-                    AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
-                }
+                AuthorTitleInfoTextBox.AppendText($"No publications were found under the author selected\r\n\r\n");
+            }
 
-                else
+            else
+            {
+                foreach (DataRow row in titles.Tables["titles"].Rows)
                 {
-                    string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: NA";
-                    AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
+                    if (!(row["price"].Equals(System.DBNull.Value)))
+                    {
+                        double price = Convert.ToDouble(row["price"]);
+                        string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${price}";
+                        AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
+                    }
+
+                    else
+                    {
+                        string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: NA";
+                        AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
+                    }
                 }
             }
 
