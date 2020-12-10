@@ -42,49 +42,12 @@ SELECT
 		INNER JOIN titleauthor
 			ON authors.au_id = titleauthor.au_id
 		INNER JOIN titles
-			ON titleauthor.title_id = titles.title_id
-	WHERE authors.au_id = '213-46-8915';
+			ON titleauthor.title_id = titles.title_id;
 GO
 
 SELECT * FROM [vAuthorTitles];
 GO
 
----------------------------------------------------------------------------------------
--- Ignore this for now (won't work for updating the author ID in the WHERE clause).
-
-UPDATE [vAuthorTitles]
-SET au_id = '238-95-7766'
-WHERE au_id = '238-95-7766';
-GO
-
-SELECT * FROM [vAuthorTitles];
-GO
-
----------------------------------------------------------------------------------------
-
-ALTER VIEW [vAuthorTitles]
-AS
-SELECT 
-	authors.au_id,
-	authors.au_fname, 
-	authors.au_lname,
-	authors.address,
-	authors.city,
-	authors.state,
-	authors.zip,
-	titles.title,
-	titles.pubdate,
-	titles.price
-	FROM authors 
-		INNER JOIN titleauthor
-			ON authors.au_id = titleauthor.au_id
-		INNER JOIN titles
-			ON titleauthor.title_id = titles.title_id
-	WHERE authors.au_id = '238-95-7766';
-GO
-
-SELECT * FROM [vAuthorTitles];
-GO
 
 ---------------------------------------------------------------------------------------
 

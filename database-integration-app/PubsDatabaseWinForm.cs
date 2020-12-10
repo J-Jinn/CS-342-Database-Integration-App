@@ -361,7 +361,7 @@ namespace database_integration_app
             conn.Open();
 
             string queryString =
-                $"SELECT * FROM vATitles " +
+                $"SELECT * FROM vAuthorTitles " +
                 $"WHERE au_id = '{SelectedAuthor.AuthorID}'";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
