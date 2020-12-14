@@ -8,9 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 /// <summary>
-/// Pubs Database WinForm Application Integration.
+/// Pubs Database WinForm Application for Front-End/Back-End Integration.
 /// 
 /// Note: BACKUP the Pubs Database before making changes to it.
 /// </summary>
@@ -31,16 +32,15 @@ namespace database_integration_app
             /// <summary>
             /// Constructor for the Author class.
             /// </summary>
-            /// <param name="au_id"></param>
-            /// <param name="au_fname"></param>
-            /// <param name="au_lname"></param>
+            /// <param name="au_id">Author ID</param>
+            /// <param name="au_fname">Author First Name</param>
+            /// <param name="au_lname">Author Last Name</param>
             public Author(string au_id, string au_fname, string au_lname)
             {
                 AuthorID = au_id;
                 AuthorFirstName = au_fname;
                 AuthorLastName = au_lname;
             }
-
             /// <summary>
             /// Accessors/Mutator methods.
             /// </summary>
@@ -60,16 +60,13 @@ namespace database_integration_app
         /// <param name="e"></param>
         private void GetAuthorTitleInfoButton_Click(object sender, EventArgs e)
         {
-            /*
-             * This function defines the button click that populates the ListBox with Author information.
-             * */
             String connString = "Data Source=localhost;" +
                  "Initial Catalog=pubs;Integrated Security=true ";
 
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
 
-            //refer to view rather than dataset
+            // Refer to view rather than using direct SQL query statements.
             string queryString = "SELECT * FROM [vAuthors];";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
@@ -78,6 +75,7 @@ namespace database_integration_app
 
             adapter.Fill(authors, "vAuthors");
 
+            // Populate our List with Authors upon loading all authors in the Authors table.
             foreach (DataRow row in authors.Tables["vAuthors"].Rows)
             {
                 Author MyAuthor = new Author($"{row["au_id"]}", $"{row["au_fname"]}", $"{row["au_lname"]}");
@@ -90,15 +88,14 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines the action taken upon clicking the button to update a author's personal information in the Authors Table of the Pubs DB.
-        ///  Important Note: Currently, The specific author is defined by the selected author in the AuthorTitleInfo ListBox.
+        /// Function defines the action taken upon clicking the button to update a author's personal information in the Authors Table of the Pubs Database.
+        ///  Important Note: The specific author is defined by the selected author in the AuthorTitleInfo ListBox.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void UpdateAuthorTitleInfoButton_Click(object sender, EventArgs e)
         {
             bool debug = true;
-
             try
             {
                 // Get selected item index.
@@ -107,8 +104,6 @@ namespace database_integration_app
                 Author SelectedAuthor = AuthorsList[SelectedItemIndex];
 
                 string authorID = $"{SelectedAuthor.AuthorID}";
-                string authorFirstName = $"";
-                string authorLastName = $"";
                 string newData = NewDataTextBox.Text.ToString();
                 if (debug)
                 {
@@ -124,7 +119,6 @@ namespace database_integration_app
                     MessageBox.Show(message);
                     return;
                 }
-
                 // Call the stored procedure.
                 RunAuthorTitlesInfoPStoredProcedure(conn, authorID);
             }
@@ -138,7 +132,6 @@ namespace database_integration_app
                 }
                 Console.WriteLine("Error: " + error.Message);
             }
-
         }
                       
         /// <summary>
@@ -164,7 +157,7 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines a stored procedure for updating a author's personal address information.
+        /// Function defines calling a stored procedure for updating a author's personal address information.
         /// </summary>
         /// <param name="DbConn"></param>
         /// <param name="tId"></param>
@@ -199,9 +192,11 @@ namespace database_integration_app
                     break;
                 case 2:
                     column_name = "phone";
-                    if (data_value.Length != 12)
+                    Regex rx = new Regex(@"^[0-9]{3}[\s]{1}[0-9]{3}-[0-9]{4}$", RegexOptions.Compiled);
+                    bool result = Regex.IsMatch(data_value, rx.ToString());
+                    if (data_value.Length != 12  || result == false)
                     {
-                        string message = $"Phone number must be in the format: 'XXX XXX-XXXX'!";
+                        string message = $"Phone number must be in the format: 'XXX XXX-XXXX where X is a digit 0-9'!";
                         MessageBox.Show(message);
                         return;
                     }
@@ -228,6 +223,7 @@ namespace database_integration_app
                     column_name = "state";
                     if (data_value.Length != 2)
                     {
+                        // TODO: Utillize specific list of valid state codes.
                         string message = $"State code must be in the format: 'XX'!";
                         MessageBox.Show(message);
                         return;
@@ -235,16 +231,19 @@ namespace database_integration_app
                     break;
                 case 6:
                     column_name = "zip";
-                    if (data_value.Length != 5)
+                    Regex rx2 = new Regex(@"^[0-9]{5}$", RegexOptions.Compiled);
+                    bool result2 = Regex.IsMatch(data_value, rx2.ToString());
+                    if (data_value.Length != 5 || result2 == false)
                     {
-                        string message = $"Zip Code must be 5 characters exactly!";
+                        string message = $"Zip Code must be 5 characters and contain only the digits 0-9!";
                         MessageBox.Show(message);
                         return;
                     }
                     break;
                 case 7:
                     column_name = "contract";
-                    if (data_value != "0" || data_value != "1")
+                    bool check = int.TryParse(data_value, out int value);
+                    if ((value != 0 && value!= 1) || check == false)
                     {
                         string message = $"Contract status be either '1' or '0'!";
                         MessageBox.Show(message);
@@ -293,26 +292,25 @@ namespace database_integration_app
             authorNewDataParam.Value = data_value;
             rSproc.Parameters.Add(authorNewDataParam);
 
-
             DbConn.Open();
             try
             {
-                // Write values of return value to console to check success/failure.
+                // Write value of store procedure return value to console to check success/failure.
                 rSproc.ExecuteNonQuery();
-                Console.WriteLine("Return Value: " + rSproc.Parameters[0].Value.ToString());
+                Console.WriteLine("Stored procedure return Value: " + rSproc.Parameters[0].Value.ToString());
 
+                // Check if the update was succesful.
                 if (rSproc.Parameters[0].Value.ToString() == "0")
                 {
-                    //Get selected item text
-                    int SelectedItem = SelectAuthorTableFieldToUpdateComboBox.SelectedIndex;
-                    // Get selected item index.
+                    // Get the index of the selected author in the Authors table.
                     int SelectedItemIndex = AuthorTitleInfoListBox.SelectedIndex;
-                    // Get selected author based on item index.
+
+                    // Get the selected author based on item index value.
                     Author SelectedAuthor = AuthorsList[SelectedItemIndex];
+
                     string authorName = $"{SelectedAuthor.AuthorFirstName} {SelectedAuthor.AuthorLastName}";
 
-
-                    string message = $"Sucessfully updated Pubs database!\n" + $"{authorName}: The value for field '{column_name}' was changed to {data_value}";
+                    string message = $"Sucessfully updated Pubs database!\n Selected Author: {authorName}\n The value for field \"{column_name}\" was changed to \"{data_value}\"";
                     MessageBox.Show(message);
                 }
                 else
@@ -331,7 +329,7 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines the action taken upon selecting an item in the ListBox that outputs the author's ID and full name.
+        /// Function defines the action taken upon selecting an item in the ListBox that displays the author's ID and full name.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -340,17 +338,10 @@ namespace database_integration_app
             // Clear text each time we select a new author.
             AuthorTitleInfoTextBox.Clear();
 
-            // Get selected item text.
-            string SelectedItem = AuthorTitleInfoListBox.SelectedItem.ToString();
-            // Parse text for ID.
-            string[] SelectedItemComponents = SelectedItem.Split(' ');
-            // Blah blah blah....skipping parse ID method as it's easier to just use our Author class.
-
             // Get selected item index.
             int SelectedItemIndex = AuthorTitleInfoListBox.SelectedIndex;
             // Get selected author based on item index.
             Author SelectedAuthor = AuthorsList[SelectedItemIndex];
-
 
             //////////////////////////////////////////////////////////////////////////////////
 
@@ -365,16 +356,15 @@ namespace database_integration_app
                 $"WHERE au_id = '{SelectedAuthor.AuthorID}'";
 
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, conn);
-
             DataSet titles = new DataSet();
 
             adapter.Fill(titles, "titles");
 
+            // Display works by selected author, if any.
             if (titles.Tables[0].Rows.Count == 0)
             {
-                AuthorTitleInfoTextBox.AppendText($"No publications were found under the author selected\r\n\r\n");
+                AuthorTitleInfoTextBox.AppendText($"No publications were found under the author selected.\r\n\r\n");
             }
-
             else
             {
                 foreach (DataRow row in titles.Tables["titles"].Rows)
@@ -385,7 +375,6 @@ namespace database_integration_app
                         string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: ${price}";
                         AuthorTitleInfoTextBox.AppendText($"{title}\r\n\r\n");
                     }
-
                     else
                     {
                         string title = $"Book Title: {row["title"]}. Publication Date: {row["pubdate"]}. Price: NA";
@@ -399,7 +388,7 @@ namespace database_integration_app
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Function defines the action taken upon the text changing in the author titles' info TextBox.
+        /// Function defines the action taken upon the text changing in the TextBox listing all authors in the Authors table.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
